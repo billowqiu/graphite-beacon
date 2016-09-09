@@ -2,6 +2,7 @@ import datetime as dt
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from smtplib import SMTP
+from smtplib import SMTP_SSL
 
 from tornado import gen, concurrent
 
@@ -42,10 +43,11 @@ class SMTPHandler(AbstractHandler):
         msg['To'] = ", ".join(self.options['to'])
 
         smtp = SMTP()
+        if self.options['use_tls']:
+            smtp = SMTP_SSL()
+
         yield smtp_connect(smtp, self.options['host'], self.options['port'])
 
-        if self.options['use_tls']:
-            yield smtp_starttls(smtp)
 
         if self.options['username'] and self.options['password']:
             yield smtp_login(smtp, self.options['username'], self.options['password'])
